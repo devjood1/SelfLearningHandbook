@@ -34,32 +34,33 @@ function initApp() {
         sidebarOverlay.addEventListener('click', () => toggleMobileMenu(false));
     }
 
-    // GDG Color Theme Pickers (Text Color & Background/Cards Color)
-    const textSwatches = document.querySelectorAll('#text-color-swatches .color-swatch');
-    const bgSwatches = document.querySelectorAll('#bg-color-swatches .color-swatch');
+    // Google Theme Mode Toggle (Light White vs Dark Gray)
+    const modeLightBtn = document.getElementById('mode-light-btn');
+    const modeDarkBtn = document.getElementById('mode-dark-btn');
 
-    textSwatches.forEach(swatch => {
-        swatch.addEventListener('click', () => {
-            textSwatches.forEach(s => s.classList.remove('active'));
-            swatch.classList.add('active');
-            const chosenColor = swatch.getAttribute('data-color');
-            document.documentElement.style.setProperty('--text-main', chosenColor);
-            document.documentElement.style.setProperty('--primary', chosenColor);
+    if (modeLightBtn && modeDarkBtn) {
+        modeLightBtn.addEventListener('click', () => {
+            document.body.classList.remove('dark-mode');
+            modeLightBtn.classList.add('active');
+            modeDarkBtn.classList.remove('active');
         });
-    });
 
-    bgSwatches.forEach(swatch => {
+        modeDarkBtn.addEventListener('click', () => {
+            document.body.classList.add('dark-mode');
+            modeDarkBtn.classList.add('active');
+            modeLightBtn.classList.remove('active');
+        });
+    }
+
+    // GDG Accent Color Swatches
+    const accentSwatches = document.querySelectorAll('#accent-color-swatches .color-swatch');
+
+    accentSwatches.forEach(swatch => {
         swatch.addEventListener('click', () => {
-            bgSwatches.forEach(s => s.classList.remove('active'));
+            accentSwatches.forEach(s => s.classList.remove('active'));
             swatch.classList.add('active');
             const chosenColor = swatch.getAttribute('data-color');
-            if (chosenColor === '#0B0F19') {
-                document.documentElement.style.setProperty('--bg-main', '#0B0F19');
-                document.documentElement.style.setProperty('--bg-card', 'rgba(18, 26, 43, 0.7)');
-            } else {
-                document.documentElement.style.setProperty('--bg-main', chosenColor);
-                document.documentElement.style.setProperty('--bg-card', chosenColor);
-            }
+            document.documentElement.style.setProperty('--primary', chosenColor);
         });
     });
 
@@ -184,8 +185,10 @@ function downloadPlannerAsImage(elementId, fileName) {
         tempReplacements.push({ input, div });
     });
 
+    const isDarkMode = document.body.classList.contains('dark-mode');
+
     html2canvas(element, {
-        backgroundColor: getComputedStyle(document.body).backgroundColor || '#0B0F19',
+        backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
         scale: 2, // High DPI
         useCORS: true,
         windowWidth: element.scrollWidth
@@ -249,7 +252,7 @@ function renderMonthlyPlanner(container) {
                 <p class="page-description">اختر الشهر المناسب لعام 2026 وصمم خطتك ثم نزلها كصورة</p>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 450px;">
-                <select id="month-select-2026" class="form-control" style="flex: 1; min-width: 160px; font-weight: 700; color: var(--gold); border-color: var(--primary);">
+                <select id="month-select-2026" class="form-control" style="flex: 1; min-width: 160px; font-weight: 700; color: var(--primary); border-color: var(--primary);">
                     ${months2026.map(m => `<option value="${m.id}" ${m.id === selectedMonthIdx ? 'selected' : ''}>${m.name}</option>`).join('')}
                 </select>
                 <button onclick="downloadPlannerAsImage('export-monthly-planner', 'جدول_الشهر_المتعلم_الذاتي')" class="btn btn-accent" style="flex: 1; min-width: 180px;">
@@ -287,7 +290,7 @@ function renderMonthlyPlanner(container) {
 
         // Empty padding cells for start of month
         for (let p = 0; p < month.startDay; p++) {
-            html += `<div class="glass-card day-box empty-day" style="opacity: 0.35; padding: 0.8rem; margin: 0; min-height: 100px; background: rgba(0,0,0,0.2);"></div>`;
+            html += `<div class="glass-card day-box empty-day" style="opacity: 0.3; padding: 0.8rem; margin: 0; min-height: 100px; background: var(--bg-surface);"></div>`;
         }
 
         // Days of month
@@ -325,7 +328,7 @@ function renderWeeklyPlanner(container) {
     days.forEach((day, idx) => {
         daysHTML += `
             <div class="glass-card" style="padding: 1.2rem; margin: 0; display: flex; flex-direction: column; gap: 10px; height: auto;">
-                <div style="font-weight: 800; font-size: 1.1rem; color: var(--accent); border-bottom: 2px solid var(--border-color); padding-bottom: 6px;">
+                <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary); border-bottom: 2px solid var(--border-color); padding-bottom: 6px;">
                     ${day}
                 </div>
                 <div class="form-group" style="margin:0;">
@@ -377,7 +380,7 @@ function renderDailyPlanner(container) {
     let hoursHTML = '';
     hours.forEach(hour => {
         hoursHTML += `
-            <div style="display: flex; align-items: center; gap: 12px; background: rgba(18, 26, 43, 0.5); padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-surface); padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                 <div style="width: 75px; font-weight: 700; color: var(--primary); font-size: 0.85rem; flex-shrink: 0;">${hour}</div>
                 <input type="text" class="form-control" style="border: none; background: transparent; padding: 4px; font-size: 0.85rem;" placeholder="النشاط المخطط له في هذه الساعة...">
             </div>
@@ -426,15 +429,15 @@ function renderExercise1(container) {
         <div class="glass-card">
             <h3 style="margin-bottom: 1rem; color: var(--gold);">📝 الخطوة الأولى: تسجيل الأنشطة لمدة ٣ أيام</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
-                <div style="background: rgba(11,15,25,0.6); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                     <h4 style="color:var(--primary); margin-bottom:8px;">اليوم الأول</h4>
                     <textarea class="form-control" style="min-height:120px;" placeholder="سجل الأنشطة التي قمت بها ووقتها بالتفصيل..."></textarea>
                 </div>
-                <div style="background: rgba(11,15,25,0.6); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                     <h4 style="color:var(--primary); margin-bottom:8px;">اليوم الثاني</h4>
                     <textarea class="form-control" style="min-height:120px;" placeholder="سجل الأنشطة التي قمت بها ووقتها بالتفصيل..."></textarea>
                 </div>
-                <div style="background: rgba(11,15,25,0.6); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                     <h4 style="color:var(--primary); margin-bottom:8px;">اليوم الثالث</h4>
                     <textarea class="form-control" style="min-height:120px;" placeholder="سجل الأنشطة التي قمت بها ووقتها بالتفصيل..."></textarea>
                 </div>
@@ -442,7 +445,7 @@ function renderExercise1(container) {
         </div>
 
         <div class="glass-card">
-            <h3 style="margin-bottom: 1.2rem; color: var(--accent);">🤔 الخطوة الثانية: أسئلة التأمل الذاتي (بعد 3 أيام)</h3>
+            <h3 style="margin-bottom: 1.2rem; color: var(--primary);">🤔 الخطوة الثانية: أسئلة التأمل الذاتي (بعد 3 أيام)</h3>
             <form onsubmit="event.preventDefault(); alert('تم حفظ إجابات التقييم الذاتي بنجاح!');">
                 <div class="form-group">
                     <label class="form-label">١- كم ساعة مضت في الأنشطة والتعلم؟</label>
@@ -480,7 +483,7 @@ function renderExercise2(container) {
 
         <div class="glass-card">
             <div class="form-group">
-                <label class="form-label" style="font-size: 1.05rem; color: var(--accent);">🎯 اكتب الهدف النهائي:</label>
+                <label class="form-label" style="font-size: 1.05rem; color: var(--primary);">🎯 اكتب الهدف النهائي:</label>
                 <input type="text" class="form-control" style="font-size: 1rem; padding: 0.8rem;" placeholder="مثال: تعلم أساسيات برمجة الويب بلغة JavaScript وخوض أول مشروع...">
             </div>
 
@@ -546,7 +549,7 @@ function renderExercise3(container) {
         </div>
 
         <div class="glass-card">
-            <h3 style="margin-bottom: 1rem; color: var(--accent);">✍️ ٢- الاسترجاع النشط (اغلق المصدر واكتب ما تتذكره)</h3>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">✍️ ٢- الاسترجاع النشط (اغلق المصدر واكتب ما تتذكره)</h3>
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
                 بعد الانتهاء من القراءة، اغلق المصدر تماماً واكتب هنا كل التفاصيل والمفاهيم التي بقيت في ذاكرتك بدون النظر للإجابات!
             </p>
@@ -589,7 +592,7 @@ function renderExercise4(container) {
             <textarea class="form-control" style="min-height: 100px;" placeholder="ما هي المهام التي تم إنجازها وما المهام التي لم تكتمل؟"></textarea>
         </div>
 
-        <div class="glass-card" style="border-color: rgba(239, 68, 68, 0.3);">
+        <div class="glass-card" style="border-color: rgba(217, 48, 37, 0.3);">
             <h3 style="margin-bottom: 1.2rem; color: var(--danger);">❓ ٢- أسئلة التشخيص والتعديل (عند وجود قصور في الخطة)</h3>
             
             <div class="form-group">
@@ -604,7 +607,7 @@ function renderExercise4(container) {
 
             <div class="form-group">
                 <label class="form-label" style="font-size: 0.95rem; color: var(--text-main);">٣- كيف أعدل الخطة للأسبوع القادم؟</label>
-                <textarea class="form-control" placeholder="ضع خطوات تصحيحية محددة (مثال: تقليل عدد الساعات، تقسيم المهام إلى قطع أصغر، تغيير وقت التعلم)..."></textarea>
+                <textarea class="form-control" placeholder="ضع خطوات تصحيحية محددة (مثال: تقليل عدد الساعات، تقسيم المهام إلى قطعة أصغر، تغيير وقت التعلم)..."></textarea>
             </div>
 
             <button class="btn btn-accent" style="margin-top: 10px;" onclick="alert('تم حفظ خطة التعديل بنجاح! جاهز للأسبوع الجديد 💪');">
