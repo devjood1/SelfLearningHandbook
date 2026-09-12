@@ -4,114 +4,165 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>كتيب المتعلم الذاتي — ابدأ رحلتك بسهولة</title>
-    <meta name="description" content="منصة تفاعلية تساعد المتعلم الذاتي المبتدئ على تنظيم وقته، تحديد أولوياته، وتطوير خطط تعلمه مع خاصية تنزيل الجداول كصور.">
+    <meta name="description" content="منصة ممتعة وتفاعلية لمساعدة المتعلم الذاتي على تنظيم رحلته وأهدافه وتنزيل جداوله بنكهة Google.">
     <!-- Google Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <!-- html2canvas for downloading planners as images -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
-<body>
+<body class="light-mode">
 
     <div id="app">
         <!-- Landing Overlay -->
         <div id="landing-page" class="landing-view">
+            <div class="landing-decorative-blob blob-1"></div>
+            <div class="landing-decorative-blob blob-2"></div>
+            <div class="landing-decorative-blob blob-3"></div>
+
             <div class="landing-content">
-                <div class="gdg-badge">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#1A73E8"/>
-                        <path d="M2 17L12 22L22 17" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M2 12L12 17L22 12" stroke="#FBBC04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span>Google Developer Group — Mustaqbal University</span>
+                <!-- Playful Google Logo Dots Header -->
+                <div class="google-dots-banner">
+                    <span class="dot dot-blue"></span>
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
                 </div>
 
-                <h1 class="landing-title">كتيـــــــــب<br>المتعلم الذاتي</h1>
-                <p class="landing-subtitle">ابدأ رحلتك بالتعلم الذاتي بسهولة ونظّم وقتك وأهدافك بذكاء</p>
+                <div class="gdg-pill-badge">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#1A73E8"/>
+                        <path d="M2 17L12 22L22 17" stroke="#EA4335" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="#FBBC04" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Google Developer Group &bull; Mustaqbal University</span>
+                </div>
 
-                <button id="btn-start" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.15rem;">
-                    ابدأ رحلتك الآن ✨
+                <h1 class="landing-title">
+                    <span class="text-g-blue">كـ</span><span class="text-g-red">تـ</span><span class="text-g-yellow">يـ</span><span class="text-g-green">ـب</span>
+                    <span class="landing-sub-title-word">المتعلم الذاتي</span>
+                </h1>
+                
+                <p class="landing-subtitle">
+                    خطوتك الأولى نحو الاستمرارية والنجاح الدراسي والمهني &mdash; نظّم وقتك، حلل أولوياتك، واحتفظ بجداولك كصور مبهجة! 🚀
+                </p>
+
+                <div class="landing-features-badges">
+                    <span class="feature-tag">📅 جداول شهر/أسبوع/يوم</span>
+                    <span class="feature-tag">🎯 مصفوفة الأولويات</span>
+                    <span class="feature-tag">🧠 الاسترجاع النشط</span>
+                    <span class="feature-tag">📸 تصدير صور عالية الدقة</span>
+                </div>
+
+                <button id="btn-start" class="btn btn-primary btn-sparkle" style="padding: 1rem 3rem; font-size: 1.25rem;">
+                    🚀 ابدأ الرحلة الآن
                 </button>
 
                 <div class="credits-badge">
-                    تم إعداده بالتعاون بين <strong>جود المطيري</strong> و <strong>محمد الشيقح</strong>
+                    إعداد متميز بالتعاون بين <strong class="badge-author">جود المطيري</strong> و <strong class="badge-author">محمد الشيقح</strong>
                 </div>
             </div>
         </div>
 
-        <!-- Mobile Top Navigation Header -->
-        <div class="mobile-header">
-            <div class="mobile-brand">
-                <span style="font-size: 1.3rem;">📚</span>
-                <span>المتعلم الذاتي</span>
+        <!-- Top Navigation Header (Desktop & Mobile) -->
+        <header class="app-topbar">
+            <div class="topbar-right">
+                <button id="mobile-menu-toggle" class="btn-icon mobile-only" aria-label="القائمة">
+                    <span>☰</span>
+                </button>
+                <div class="brand-badge">
+                    <div class="google-mini-dots">
+                        <span class="dot dot-blue"></span>
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <span class="brand-name">كتيب المتعلم الذاتي</span>
+                </div>
             </div>
-            <button id="mobile-menu-toggle" class="mobile-menu-btn" aria-label="قائمة التنقل">
-                <span>☰</span>
-            </button>
-        </div>
+
+            <!-- Fun Quick Customization Tools Bar -->
+            <div class="topbar-controls">
+                <!-- Text Color Dropdown Menu -->
+                <div class="control-box">
+                    <label for="text-color-select" class="control-label">
+                        <span class="icon-bubble">🎨</span> لون الخط:
+                    </label>
+                    <select id="text-color-select" class="google-select">
+                        <option value="default" selected>الافتراضي (حسب المظهر)</option>
+                        <option value="#1A73E8">🔵 أزرق Google (#1A73E8)</option>
+                        <option value="#1E8E3E">🟢 أخضر Google (#1E8E3E)</option>
+                        <option value="#F9AB00">🟡 أصفر Google (#F9AB00)</option>
+                        <option value="#D93025">🔴 أحمر Google (#D93025)</option>
+                        <option value="#9334E8">🟣 بنفسجي مميز (#9334E8)</option>
+                    </select>
+                </div>
+
+                <!-- Theme Switcher: White vs Dark Gray -->
+                <div class="control-box">
+                    <div class="google-segmented-control">
+                        <button id="mode-white-btn" class="seg-btn active" title="خلفية بيضاء نقية">
+                            <span>☀️ أبيض ناصع</span>
+                        </button>
+                        <button id="mode-darkgray-btn" class="seg-btn" title="خلفية رمادي داكن Google">
+                            <span>🌙 رمادي داكن</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
 
         <!-- Backdrop Overlay for Mobile Drawer -->
         <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
         <!-- Sidebar Navigation -->
         <aside id="sidebar" class="sidebar">
-            <div class="brand-header">
-                <div class="brand-icon">📚</div>
-                <div>
-                    <div class="brand-title">المتعلم الذاتي</div>
-                    <small style="color: var(--text-dim); font-size: 0.75rem;">دليلك لتطوير الذات</small>
-                </div>
-                <button id="mobile-menu-close" class="mobile-close-btn" aria-label="إغلاق">✕</button>
-            </div>
-
-            <!-- Google Material Theme Customizer -->
-            <div class="theme-customizer">
-                <div class="theme-title">
-                    <span>🎨 مظاهر Google</span>
-                </div>
-
-                <!-- Light / Dark Mode Toggle -->
-                <div class="theme-mode-toggle">
-                    <button id="mode-light-btn" class="mode-btn active">
-                        <span>☀️ فاتح</span>
-                    </button>
-                    <button id="mode-dark-btn" class="mode-btn">
-                        <span>🌙 داكن</span>
-                    </button>
-                </div>
-                
-                <div class="theme-group">
-                    <span class="theme-label">لون التمييز (GDG Accent):</span>
-                    <div class="color-picker-swatches" id="accent-color-swatches">
-                        <button class="color-swatch active" data-color="#1A73E8" style="background-color: #1A73E8;" title="Google Blue"></button>
-                        <button class="color-swatch" data-color="#1E8E3E" style="background-color: #1E8E3E;" title="Google Green"></button>
-                        <button class="color-swatch" data-color="#F9AB00" style="background-color: #F9AB00;" title="Google Yellow"></button>
-                        <button class="color-swatch" data-color="#D93025" style="background-color: #D93025;" title="Google Red"></button>
+            <div class="sidebar-top">
+                <div class="sidebar-brand">
+                    <div class="brand-avatar">📚</div>
+                    <div>
+                        <div class="brand-title">المتعلم الذاتي</div>
+                        <div class="brand-caption">GDG Mustaqbal University</div>
                     </div>
                 </div>
+                <button id="mobile-menu-close" class="btn-icon mobile-only" aria-label="إغلاق">✕</button>
             </div>
 
-            <div class="nav-section-title">الجداول التخطيطية</div>
+            <div class="nav-category-badge">
+                <span>🗓️ التخطيط والجداول</span>
+            </div>
             <ul class="nav-menu">
-                <li><a class="nav-item active" data-target="monthly-planner"><span class="nav-icon">📅</span> جدول الشهر</a></li>
+                <li><a class="nav-item active" data-target="monthly-planner"><span class="nav-icon">📅</span> جدول الشهر (2026)</a></li>
                 <li><a class="nav-item" data-target="weekly-planner"><span class="nav-icon">📆</span> جدول الأسبوع</a></li>
-                <li><a class="nav-item" data-target="daily-planner"><span class="nav-icon">⏱️</span> جدول اليوم</a></li>
+                <li><a class="nav-item" data-target="daily-planner"><span class="nav-icon">⏱️</span> جدول اليوم بالساعات</a></li>
             </ul>
 
-            <div class="nav-section-title">التمارين التفاعلية</div>
+            <div class="nav-category-badge">
+                <span>⚡ التمارين التطويرية</span>
+            </div>
             <ul class="nav-menu">
                 <li><a class="nav-item" data-target="exercise-1"><span class="nav-icon">📊</span> ١- تدقيق الوقت (٣ أيام)</a></li>
                 <li><a class="nav-item" data-target="exercise-2"><span class="nav-icon">🎯</span> ٢- ترتيب الأولويات</a></li>
                 <li><a class="nav-item" data-target="exercise-3"><span class="nav-icon">🧠</span> ٣- هل أتذكر فعلاً؟</a></li>
-                <li><a class="nav-item" data-target="exercise-4"><span class="nav-icon">🔄</span> ٤- عند فشل الخطة</a></li>
+                <li><a class="nav-item" data-target="exercise-4"><span class="nav-icon">🔄</span> ٤- ماذا تفعل عند فشل الخطة؟</a></li>
             </ul>
+
+            <!-- Google Accent Color Selector Widget -->
+            <div class="sidebar-accent-widget">
+                <div class="widget-title">✨ لمسة ألوان Google للبطاقات والأزرار:</div>
+                <div class="accent-dots" id="accent-dots-wrapper">
+                    <button class="accent-dot active" data-accent="#1A73E8" style="background:#1A73E8;" title="Google Blue"></button>
+                    <button class="accent-dot" data-accent="#D93025" style="background:#D93025;" title="Google Red"></button>
+                    <button class="accent-dot" data-accent="#F9AB00" style="background:#F9AB00;" title="Google Yellow"></button>
+                    <button class="accent-dot" data-accent="#1E8E3E" style="background:#1E8E3E;" title="Google Green"></button>
+                </div>
+            </div>
         </aside>
 
         <!-- Main Dynamic View Container -->
         <main class="main-content">
-            <!-- Content will be rendered here by JS -->
             <div id="view-container"></div>
         </main>
     </div>
