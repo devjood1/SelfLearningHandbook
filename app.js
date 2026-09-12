@@ -34,6 +34,35 @@ function initApp() {
         sidebarOverlay.addEventListener('click', () => toggleMobileMenu(false));
     }
 
+    // GDG Color Theme Pickers (Text Color & Background/Cards Color)
+    const textSwatches = document.querySelectorAll('#text-color-swatches .color-swatch');
+    const bgSwatches = document.querySelectorAll('#bg-color-swatches .color-swatch');
+
+    textSwatches.forEach(swatch => {
+        swatch.addEventListener('click', () => {
+            textSwatches.forEach(s => s.classList.remove('active'));
+            swatch.classList.add('active');
+            const chosenColor = swatch.getAttribute('data-color');
+            document.documentElement.style.setProperty('--text-main', chosenColor);
+            document.documentElement.style.setProperty('--primary', chosenColor);
+        });
+    });
+
+    bgSwatches.forEach(swatch => {
+        swatch.addEventListener('click', () => {
+            bgSwatches.forEach(s => s.classList.remove('active'));
+            swatch.classList.add('active');
+            const chosenColor = swatch.getAttribute('data-color');
+            if (chosenColor === '#0B0F19') {
+                document.documentElement.style.setProperty('--bg-main', '#0B0F19');
+                document.documentElement.style.setProperty('--bg-card', 'rgba(18, 26, 43, 0.7)');
+            } else {
+                document.documentElement.style.setProperty('--bg-main', chosenColor);
+                document.documentElement.style.setProperty('--bg-card', chosenColor);
+            }
+        });
+    });
+
     // Hide Landing on Start
     if (btnStart) {
         btnStart.addEventListener('click', () => {
@@ -144,7 +173,7 @@ function downloadPlannerAsImage(elementId, fileName) {
         div.style.borderRadius = getComputedStyle(input).borderRadius;
         div.style.padding = getComputedStyle(input).padding;
         div.style.fontSize = getComputedStyle(input).fontSize;
-        div.style.color = input.value ? getComputedStyle(input).color : 'rgba(255, 255, 255, 0.4)';
+        div.style.color = input.value ? getComputedStyle(input).color : getComputedStyle(document.documentElement).getPropertyValue('--text-muted');
         div.style.fontFamily = getComputedStyle(input).fontFamily;
         div.style.fontWeight = getComputedStyle(input).fontWeight;
 
@@ -156,7 +185,7 @@ function downloadPlannerAsImage(elementId, fileName) {
     });
 
     html2canvas(element, {
-        backgroundColor: '#0B0F19',
+        backgroundColor: getComputedStyle(document.body).backgroundColor || '#0B0F19',
         scale: 2, // High DPI
         useCORS: true,
         windowWidth: element.scrollWidth
