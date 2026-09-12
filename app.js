@@ -8,6 +8,31 @@ function initApp() {
     const landingPage = document.getElementById('landing-page');
     const btnStart = document.getElementById('btn-start');
     const navItems = document.querySelectorAll('.nav-item');
+    const sidebar = document.getElementById('sidebar');
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    // Mobile Drawer Handlers
+    function toggleMobileMenu(show) {
+        if (show) {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+        } else {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        }
+    }
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', () => toggleMobileMenu(true));
+    }
+    if (mobileMenuClose) {
+        mobileMenuClose.addEventListener('click', () => toggleMobileMenu(false));
+    }
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => toggleMobileMenu(false));
+    }
 
     // Hide Landing on Start
     if (btnStart) {
@@ -28,12 +53,14 @@ function initApp() {
             item.classList.add('active');
             const targetView = item.getAttribute('data-target');
             renderView(targetView);
+            // Close drawer on mobile item tap
+            toggleMobileMenu(false);
         });
     });
 
     // Auto expand textareas on input
     document.addEventListener('input', (e) => {
-        if (e.target.tagName.toLowerCase() === 'textarea') {
+        if (e.target.tagName && e.target.tagName.toLowerCase() === 'textarea') {
             autoResizeTextarea(e.target);
         }
     });
@@ -193,7 +220,7 @@ function renderMonthlyPlanner(container) {
                 <div style="color: var(--text-dim); font-size: 0.85rem;">كتيب المتعلم الذاتي • GDG Mustaqbal</div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 10px; text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.85rem;">
+            <div style="display: grid; grid-template-columns: repeat(7, minmax(130px, 1fr)); gap: 10px; margin-bottom: 10px; text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.85rem;">
                 <div>الأحد</div><div>الإثنين</div><div>الثلاثاء</div><div>الأربعاء</div><div>الخميس</div><div>الجمعة</div><div>السبت</div>
             </div>
 
@@ -246,7 +273,7 @@ function renderWeeklyPlanner(container) {
                 <div style="color: var(--text-dim); font-size: 0.85rem;">كتيب المتعلم الذاتي</div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; align-items: start;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; align-items: start;">
                 ${daysHTML}
             </div>
         </div>
@@ -266,9 +293,9 @@ function renderDailyPlanner(container) {
     let hoursHTML = '';
     hours.forEach(hour => {
         hoursHTML += `
-            <div style="display: flex; align-items: center; gap: 15px; background: rgba(18, 26, 43, 0.5); padding: 8px 15px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                <div style="width: 80px; font-weight: 700; color: var(--primary); font-size: 0.9rem;">${hour}</div>
-                <input type="text" class="form-control" style="border: none; background: transparent; padding: 4px; font-size: 0.9rem;" placeholder="النشاط المخطط له في هذه الساعة...">
+            <div style="display: flex; align-items: center; gap: 12px; background: rgba(18, 26, 43, 0.5); padding: 8px 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                <div style="width: 75px; font-weight: 700; color: var(--primary); font-size: 0.85rem; flex-shrink: 0;">${hour}</div>
+                <input type="text" class="form-control" style="border: none; background: transparent; padding: 4px; font-size: 0.85rem;" placeholder="النشاط المخطط له في هذه الساعة...">
             </div>
         `;
     });
@@ -314,7 +341,7 @@ function renderExercise1(container) {
 
         <div class="glass-card">
             <h3 style="margin-bottom: 1rem; color: var(--gold);">📝 الخطوة الأولى: تسجيل الأنشطة لمدة ٣ أيام</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
                 <div style="background: rgba(11,15,25,0.6); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                     <h4 style="color:var(--primary); margin-bottom:8px;">اليوم الأول</h4>
                     <textarea class="form-control" style="min-height:120px;" placeholder="سجل الأنشطة التي قمت بها ووقتها بالتفصيل..."></textarea>
@@ -369,12 +396,12 @@ function renderExercise2(container) {
 
         <div class="glass-card">
             <div class="form-group">
-                <label class="form-label" style="font-size: 1.1rem; color: var(--accent);">🎯 اكتب الهدف النهائي:</label>
-                <input type="text" class="form-control" style="font-size: 1.05rem; padding: 0.9rem;" placeholder="مثال: تعلم أساسيات برمجة الويب بلغة JavaScript وخوض أول مشروع...">
+                <label class="form-label" style="font-size: 1.05rem; color: var(--accent);">🎯 اكتب الهدف النهائي:</label>
+                <input type="text" class="form-control" style="font-size: 1rem; padding: 0.8rem;" placeholder="مثال: تعلم أساسيات برمجة الويب بلغة JavaScript وخوض أول مشروع...">
             </div>
 
             <div class="form-group" style="margin-top: 1.5rem;">
-                <label class="form-label" style="font-size: 1.1rem; color: var(--gold);">❓ ما الذي يجب أن أفعله أو أتعلمه لأصل لهذا الهدف؟</label>
+                <label class="form-label" style="font-size: 1.05rem; color: var(--gold);">❓ ما الذي يجب أن أفعله أو أتعلمه لأصل لهذا الهدف؟</label>
                 <textarea class="form-control" style="min-height: 100px;" placeholder="اكتب جميع المهام والخطوات التي تخطر ببالك لتصل لهدفك..."></textarea>
             </div>
         </div>
@@ -439,7 +466,7 @@ function renderExercise3(container) {
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
                 بعد الانتهاء من القراءة، اغلق المصدر تماماً واكتب هنا كل التفاصيل والمفاهيم التي بقيت في ذاكرتك بدون النظر للإجابات!
             </p>
-            <textarea class="form-control" style="min-height: 180px; font-size: 1rem;" placeholder="اكتب هنا جميع النقاط التي تتذكرها الآن..."></textarea>
+            <textarea class="form-control" style="min-height: 160px; font-size: 0.95rem;" placeholder="اكتب هنا جميع النقاط التي تتذكرها الآن..."></textarea>
 
             <div style="margin-top: 1.5rem; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
                 <button class="btn btn-primary" onclick="document.getElementById('recall-check').style.display='block';">
@@ -482,17 +509,17 @@ function renderExercise4(container) {
             <h3 style="margin-bottom: 1.2rem; color: var(--danger);">❓ ٢- أسئلة التشخيص والتعديل (عند وجود قصور في الخطة)</h3>
             
             <div class="form-group">
-                <label class="form-label" style="font-size: 1rem; color: var(--text-main);">١- ماذا حدث بالضبط؟</label>
+                <label class="form-label" style="font-size: 0.95rem; color: var(--text-main);">١- ماذا حدث بالضبط؟</label>
                 <textarea class="form-control" placeholder="وصف حيادي لما تم تنفيذه ولماذا توقفت الخطة..."></textarea>
             </div>
 
             <div class="form-group">
-                <label class="form-label" style="font-size: 1rem; color: var(--text-main);">٢- ما سبب المشكلة؟</label>
+                <label class="form-label" style="font-size: 0.95rem; color: var(--text-main);">٢- ما سبب المشكلة؟</label>
                 <textarea class="form-control" placeholder="هل التقدير الزمني غير واقعي؟ هل ظهرت ملهيات طارئة؟ أم كان الهدف أكبر من اللازم؟"></textarea>
             </div>
 
             <div class="form-group">
-                <label class="form-label" style="font-size: 1rem; color: var(--text-main);">٣- كيف أعدل الخطة للأسبوع القادم؟</label>
+                <label class="form-label" style="font-size: 0.95rem; color: var(--text-main);">٣- كيف أعدل الخطة للأسبوع القادم؟</label>
                 <textarea class="form-control" placeholder="ضع خطوات تصحيحية محددة (مثال: تقليل عدد الساعات، تقسيم المهام إلى قطع أصغر، تغيير وقت التعلم)..."></textarea>
             </div>
 
