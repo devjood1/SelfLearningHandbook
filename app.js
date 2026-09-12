@@ -8,16 +8,17 @@ function initApp() {
     const landingPage = document.getElementById('landing-page');
     const btnStart = document.getElementById('btn-start');
     const navItems = document.querySelectorAll('.nav-item');
-    const viewContainer = document.getElementById('view-container');
 
     // Hide Landing on Start
-    btnStart.addEventListener('click', () => {
-        landingPage.style.animation = 'fadeIn 0.4s reverse forwards';
-        setTimeout(() => {
-            landingPage.style.display = 'none';
-        }, 400);
-        renderView('monthly-planner');
-    });
+    if (btnStart) {
+        btnStart.addEventListener('click', () => {
+            landingPage.style.animation = 'fadeIn 0.4s reverse forwards';
+            setTimeout(() => {
+                landingPage.style.display = 'none';
+            }, 400);
+            renderView('monthly-planner');
+        });
+    }
 
     // Sidebar navigation
     navItems.forEach(item => {
@@ -30,8 +31,20 @@ function initApp() {
         });
     });
 
-    // Default View if landing was skipped or direct load
+    // Auto expand textareas on input
+    document.addEventListener('input', (e) => {
+        if (e.target.tagName.toLowerCase() === 'textarea') {
+            autoResizeTextarea(e.target);
+        }
+    });
+
+    // Default View
     renderView('monthly-planner');
+}
+
+function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
 }
 
 // Router to render views
@@ -73,28 +86,77 @@ function downloadPlannerAsImage(elementId, fileName) {
     if (!element) return;
 
     // Show visual indicator/loading
-    const originalBtn = event.currentTarget;
-    const originalText = originalBtn.innerHTML;
-    originalBtn.innerHTML = '⌛ جاري التجهيز...';
-    originalBtn.disabled = true;
+    const originalBtn = event ? event.currentTarget : null;
+    let originalText = '';
+    if (originalBtn) {
+        originalText = originalBtn.innerHTML;
+        originalBtn.innerHTML = '⌛ جاري التجهيز...';
+        originalBtn.disabled = true;
+    }
+
+    // Replace inputs/textareas with styled divs temporarily for exact multiline rendering in html2canvas
+    const tempReplacements = [];
+    const inputsAndTextareas = element.querySelectorAll('input, textarea');
+
+    inputsAndTextareas.forEach(input => {
+        const div = document.createElement('div');
+        div.className = input.className;
+        const val = input.value || input.placeholder || '';
+        
+        // Preserve line breaks
+        div.style.whiteSpace = 'pre-wrap';
+        div.style.wordBreak = 'break-word';
+        div.style.minHeight = input.offsetHeight + 'px';
+        div.style.height = 'auto';
+        div.style.background = getComputedStyle(input).background;
+        div.style.border = getComputedStyle(input).border;
+        div.style.borderRadius = getComputedStyle(input).borderRadius;
+        div.style.padding = getComputedStyle(input).padding;
+        div.style.fontSize = getComputedStyle(input).fontSize;
+        div.style.color = input.value ? getComputedStyle(input).color : 'rgba(255, 255, 255, 0.4)';
+        div.style.fontFamily = getComputedStyle(input).fontFamily;
+        div.style.fontWeight = getComputedStyle(input).fontWeight;
+
+        div.textContent = val;
+
+        input.style.display = 'none';
+        input.parentNode.insertBefore(div, input.nextSibling);
+        tempReplacements.push({ input, div });
+    });
 
     html2canvas(element, {
         backgroundColor: '#0B0F19',
         scale: 2, // High DPI
-        useCORS: true
+        useCORS: true,
+        windowWidth: element.scrollWidth
     }).then(canvas => {
+        // Restore original inputs/textareas
+        tempReplacements.forEach(({ input, div }) => {
+            input.style.display = '';
+            div.remove();
+        });
+
         const link = document.createElement('a');
         link.download = `${fileName}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
 
-        originalBtn.innerHTML = originalText;
-        originalBtn.disabled = false;
+        if (originalBtn) {
+            originalBtn.innerHTML = originalText;
+            originalBtn.disabled = false;
+        }
     }).catch(err => {
         console.error('Error downloading image:', err);
+        // Restore original inputs in case of error
+        tempReplacements.forEach(({ input, div }) => {
+            input.style.display = '';
+            div.remove();
+        });
         alert('حدث خطأ أثناء تنزيل الصورة، يرجى المحاولة مرة أخرى.');
-        originalBtn.innerHTML = originalText;
-        originalBtn.disabled = false;
+        if (originalBtn) {
+            originalBtn.innerHTML = originalText;
+            originalBtn.disabled = false;
+        }
     });
 }
 
@@ -109,7 +171,7 @@ function renderMonthlyPlanner(container) {
         daysHTML += `
             <div class="glass-card" style="padding: 0.8rem; margin: 0; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between;">
                 <div style="font-weight: 800; font-size: 0.9rem; color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">يوم ${i}</div>
-                <textarea class="form-control" placeholder="هدف/ملاحظة..." style="background: transparent; border: none; font-size: 0.8rem; padding: 4px; min-height: 60px; color: var(--text-main); font-weight: 600;"></textarea>
+                <textarea class="form-control" placeholder="هدف/ملاحظة..." style="background: transparent; border: none; font-size: 0.8rem; padding: 4px; min-height: 60px; color: var(--text-main); font-weight: 600; overflow:hidden;"></textarea>
             </div>
         `;
     }
@@ -151,7 +213,7 @@ function renderWeeklyPlanner(container) {
 
     days.forEach((day, idx) => {
         daysHTML += `
-            <div class="glass-card" style="padding: 1.2rem; margin: 0; display: flex; flex-direction: column; gap: 10px;">
+            <div class="glass-card" style="padding: 1.2rem; margin: 0; display: flex; flex-direction: column; gap: 10px; height: auto;">
                 <div style="font-weight: 800; font-size: 1.1rem; color: var(--accent); border-bottom: 2px solid var(--border-color); padding-bottom: 6px;">
                     ${day}
                 </div>
@@ -161,7 +223,7 @@ function renderWeeklyPlanner(container) {
                 </div>
                 <div style="margin-top: 5px;">
                     <label class="form-label" style="font-size:0.75rem; color:var(--text-dim);">المهام اليومية:</label>
-                    <textarea class="form-control" style="font-size:0.85rem; min-height:120px;" placeholder="• مهمة ١&#10;• مهمة ٢&#10;• مهمة ٣"></textarea>
+                    <textarea class="form-control" style="font-size:0.85rem; min-height:120px; overflow:hidden;" placeholder="• مهمة ١&#10;• مهمة ٢&#10;• مهمة ٣"></textarea>
                 </div>
             </div>
         `;
@@ -184,7 +246,7 @@ function renderWeeklyPlanner(container) {
                 <div style="color: var(--text-dim); font-size: 0.85rem;">كتيب المتعلم الذاتي</div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; align-items: start;">
                 ${daysHTML}
             </div>
         </div>
