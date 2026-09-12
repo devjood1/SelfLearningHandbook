@@ -420,7 +420,23 @@ textarea.form-control {
     padding: 1.2rem;
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
+}
+
+.month-grid-wrapper {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.month-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    min-width: 840px;
 }
 
 /* Keyframe Animations */
@@ -436,8 +452,9 @@ textarea.form-control {
 /* Grid layout for Planners & Eisenhower Matrix */
 .grid-7 {
     display: grid;
-    grid-template-columns: repeat(7, minmax(130px, 1fr));
+    grid-template-columns: repeat(7, minmax(120px, 1fr));
     gap: 10px;
+    min-width: 840px;
 }
 
 .grid-matrix {
@@ -476,18 +493,18 @@ textarea.form-control {
     }
     .main-content {
         margin-right: 0;
-        padding: 5rem 1rem 2rem 1rem;
+        padding: 4.8rem 0.8rem 2rem 0.8rem;
     }
     .landing-title {
         font-size: 2.2rem;
     }
     .page-title {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
     }
     .page-header {
         flex-direction: column;
         align-items: stretch;
-        gap: 1rem;
+        gap: 0.9rem;
     }
     .btn {
         width: 100%;
@@ -497,7 +514,7 @@ textarea.form-control {
         grid-template-columns: 1fr;
     }
     .planner-export-container {
-        padding: 0.8rem;
+        padding: 0.8rem 0.5rem;
     }
 }
 
@@ -509,6 +526,9 @@ textarea.form-control {
         font-size: 1.8rem;
     }
     .glass-card {
-        padding: 1.1rem;
+        padding: 1rem;
+    }
+    .form-control {
+        font-size: 16px; /* Prevents auto-zoom on iPhone Safari inputs */
     }
 }

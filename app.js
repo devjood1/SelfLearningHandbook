@@ -123,13 +123,17 @@ function downloadPlannerAsImage(elementId, fileName) {
 
     // Replace inputs/textareas with styled divs temporarily for exact multiline rendering in html2canvas
     const tempReplacements = [];
-    const inputsAndTextareas = element.querySelectorAll('input, textarea');
+    const inputsAndTextareas = element.querySelectorAll('input, textarea, select');
 
     inputsAndTextareas.forEach(input => {
         const div = document.createElement('div');
         div.className = input.className;
-        const val = input.value || input.placeholder || '';
-        
+        let val = input.value || input.placeholder || '';
+
+        if (input.tagName.toLowerCase() === 'select') {
+            val = input.options[input.selectedIndex].text;
+        }
+
         // Preserve line breaks
         div.style.whiteSpace = 'pre-wrap';
         div.style.wordBreak = 'break-word';
@@ -188,47 +192,98 @@ function downloadPlannerAsImage(elementId, fileName) {
 }
 
 // ----------------------------------------------------
-// 1. MONTHLY PLANNER
+// 1. MONTHLY PLANNER (2026 Months Selection)
 // ----------------------------------------------------
 function renderMonthlyPlanner(container) {
-    const daysInMonth = 30;
-    let daysHTML = '';
+    const months2026 = [
+        { id: 0, name: 'يناير 2026', days: 31, startDay: 4 },   // Thursday
+        { id: 1, name: 'فبراير 2026', days: 28, startDay: 0 },  // Sunday
+        { id: 2, name: 'مارس 2026', days: 31, startDay: 0 },    // Sunday
+        { id: 3, name: 'أبريل 2026', days: 30, startDay: 3 },   // Wednesday
+        { id: 4, name: 'مايو 2026', days: 31, startDay: 5 },    // Friday
+        { id: 5, name: 'يونيو 2026', days: 30, startDay: 1 },   // Monday
+        { id: 6, name: 'يوليو 2026', days: 31, startDay: 3 },   // Wednesday
+        { id: 7, name: 'أغسطس 2026', days: 31, startDay: 6 },  // Saturday
+        { id: 8, name: 'سبتمبر 2026', days: 30, startDay: 2 }, // Tuesday
+        { id: 9, name: 'أكتوبر 2026', days: 31, startDay: 4 },  // Thursday
+        { id: 10, name: 'نوفمبر 2026', days: 30, startDay: 0 }, // Sunday
+        { id: 11, name: 'ديسمبر 2026', days: 31, startDay: 2 }  // Tuesday
+    ];
 
-    for (let i = 1; i <= daysInMonth; i++) {
-        daysHTML += `
-            <div class="glass-card" style="padding: 0.8rem; margin: 0; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between;">
-                <div style="font-weight: 800; font-size: 0.9rem; color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">يوم ${i}</div>
-                <textarea class="form-control" placeholder="هدف/ملاحظة..." style="background: transparent; border: none; font-size: 0.8rem; padding: 4px; min-height: 60px; color: var(--text-main); font-weight: 600; overflow:hidden;"></textarea>
-            </div>
-        `;
-    }
+    // Current month index (September 2026 = index 8)
+    let selectedMonthIdx = 8;
 
     container.innerHTML = `
         <div class="page-header">
             <div>
                 <h1 class="page-title">📅 جدول الشهر (Monthly Planner)</h1>
-                <p class="page-description">صمم رؤيتك وأهدافك للشهر القادم وقم بتنزيل الجدول كصورة جاهزة للاستخدام</p>
+                <p class="page-description">اختر الشهر المناسب لعام 2026 وصمم خطتك ثم نزلها كصورة</p>
             </div>
-            <button onclick="downloadPlannerAsImage('export-monthly-planner', 'جدول_الشهر_المتعلم_الذاتي')" class="btn btn-accent">
-                📥 تنزيل الجدول كصورة (PNG)
-            </button>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 450px;">
+                <select id="month-select-2026" class="form-control" style="flex: 1; min-width: 160px; font-weight: 700; color: var(--gold); border-color: var(--primary);">
+                    ${months2026.map(m => `<option value="${m.id}" ${m.id === selectedMonthIdx ? 'selected' : ''}>${m.name}</option>`).join('')}
+                </select>
+                <button onclick="downloadPlannerAsImage('export-monthly-planner', 'جدول_الشهر_المتعلم_الذاتي')" class="btn btn-accent" style="flex: 1; min-width: 180px;">
+                    📥 تنزيل الجدول كصورة (PNG)
+                </button>
+            </div>
         </div>
 
         <div id="export-monthly-planner" class="planner-export-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-                <h2 style="font-size: 1.4rem; color: var(--text-main); font-weight: 800;">خطة الشهر التعليمية</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">
+                <h2 id="current-month-display" style="font-size: 1.3rem; color: var(--text-main); font-weight: 800;">خطة شهر ${months2026[selectedMonthIdx].name}</h2>
                 <div style="color: var(--text-dim); font-size: 0.85rem;">كتيب المتعلم الذاتي • GDG Mustaqbal</div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(7, minmax(130px, 1fr)); gap: 10px; margin-bottom: 10px; text-align: center; font-weight: 700; color: var(--text-muted); font-size: 0.85rem;">
-                <div>الأحد</div><div>الإثنين</div><div>الثلاثاء</div><div>الأربعاء</div><div>الخميس</div><div>الجمعة</div><div>السبت</div>
-            </div>
+            <div class="month-grid-wrapper">
+                <div class="month-days-header">
+                    <div>الأحد</div><div>الإثنين</div><div>الثلاثاء</div><div>الأربعاء</div><div>الخميس</div><div>الجمعة</div><div>السبت</div>
+                </div>
 
-            <div class="grid-7">
-                ${daysHTML}
+                <div id="month-days-grid" class="grid-7">
+                    <!-- Days dynamically rendered -->
+                </div>
             </div>
         </div>
     `;
+
+    function buildMonthGrid(monthIdx) {
+        const month = months2026[monthIdx];
+        const gridContainer = document.getElementById('month-days-grid');
+        const monthTitle = document.getElementById('current-month-display');
+        
+        if (monthTitle) monthTitle.textContent = `خطة شهر ${month.name}`;
+        
+        let html = '';
+
+        // Empty padding cells for start of month
+        for (let p = 0; p < month.startDay; p++) {
+            html += `<div class="glass-card day-box empty-day" style="opacity: 0.35; padding: 0.8rem; margin: 0; min-height: 100px; background: rgba(0,0,0,0.2);"></div>`;
+        }
+
+        // Days of month
+        for (let i = 1; i <= month.days; i++) {
+            html += `
+                <div class="glass-card day-box" style="padding: 0.7rem; margin: 0; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div style="font-weight: 800; font-size: 0.85rem; color: var(--primary); border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">يوم ${i}</div>
+                    <textarea class="form-control" placeholder="هدف/ملاحظة..." style="background: transparent; border: none; font-size: 0.8rem; padding: 4px; min-height: 60px; color: var(--text-main); font-weight: 600; overflow:hidden;"></textarea>
+                </div>
+            `;
+        }
+
+        gridContainer.innerHTML = html;
+    }
+
+    // Build initial grid
+    buildMonthGrid(selectedMonthIdx);
+
+    // Event listener for month select dropdown
+    const selectEl = document.getElementById('month-select-2026');
+    if (selectEl) {
+        selectEl.addEventListener('change', (e) => {
+            buildMonthGrid(parseInt(e.target.value));
+        });
+    }
 }
 
 // ----------------------------------------------------
