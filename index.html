@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كتيب المتعلم الذاتي — ابدأ رحلتك بسهولة</title>
+    <meta name="description" content="منصة تفاعلية تساعد المتعلم الذاتي المبتدئ على تنظيم وقته، تحديد أولوياته، وتطوير خطط تعلمه مع خاصية تنزيل الجداول كصور.">
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- html2canvas for downloading planners as images -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+    <div id="app">
+        <!-- Landing Overlay -->
+        <div id="landing-page" class="landing-view">
+            <div class="landing-content">
+                <div class="gdg-badge">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#4285F4"/>
+                        <path d="M2 17L12 22L22 17" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="#FBBC05" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Google Developer Group — Mustaqbal University</span>
+                </div>
+
+                <h1 class="landing-title">كتيـــــــــب<br>المتعلم الذاتي</h1>
+                <p class="landing-subtitle">ابدأ رحلتك بالتعلم الذاتي بسهولة ونظّم وقتك وأهدافك بذكاء</p>
+
+                <button id="btn-start" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.2rem;">
+                    ابدأ رحلتك الآن ✨
+                </button>
+
+                <div class="credits-badge">
+                    تم إعداده بالتعاون بين <strong>جود المطيري</strong> و <strong>محمد الشيقح</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand-header">
+                <div class="brand-icon">📚</div>
+                <div>
+                    <div class="brand-title">المتعلم الذاتي</div>
+                    <small style="color: var(--text-dim); font-size: 0.75rem;">دليلك لتطوير الذات</small>
+                </div>
+            </div>
+
+            <div class="nav-section-title">الجداول التخطيطية</div>
+            <ul class="nav-menu">
+                <li><a class="nav-item active" data-target="monthly-planner"><span class="nav-icon">📅</span> جدول الشهر</a></li>
+                <li><a class="nav-item" data-target="weekly-planner"><span class="nav-icon">📆</span> جدول الأسبوع</a></li>
+                <li><a class="nav-item" data-target="daily-planner"><span class="nav-icon">⏱️</span> جدول اليوم</a></li>
+            </ul>
+
+            <div class="nav-section-title">التمارين التفاعلية</div>
+            <ul class="nav-menu">
+                <li><a class="nav-item" data-target="exercise-1"><span class="nav-icon">📊</span> ١- تدقيق الوقت (٣ أيام)</a></li>
+                <li><a class="nav-item" data-target="exercise-2"><span class="nav-icon">🎯</span> ٢- ترتيب الأولويات</a></li>
+                <li><a class="nav-item" data-target="exercise-3"><span class="nav-icon">🧠</span> ٣- هل أتذكر فعلاً؟</a></li>
+                <li><a class="nav-item" data-target="exercise-4"><span class="nav-icon">🔄</span> ٤- عند فشل الخطة</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Dynamic View Container -->
+        <main class="main-content">
+            <!-- Content will be rendered here by JS -->
+            <div id="view-container"></div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
