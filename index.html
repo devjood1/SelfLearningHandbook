@@ -165,6 +165,23 @@
         <main class="main-content">
             <div id="view-container"></div>
         </main>
+
+        <!-- Day Edit Modal Dialog (For Mobile Tap & Enter Note) -->
+        <div id="day-modal-overlay" class="day-modal-overlay">
+            <div class="day-modal-content">
+                <div class="day-modal-header">
+                    <h3 id="modal-day-title">تعديل هدف اليوم</h3>
+                    <button id="modal-close-btn" class="btn-icon" style="width: 32px; height: 32px;">✕</button>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label class="form-label">الهدف أو الملاحظة الخاصة بهذا اليوم:</label>
+                    <textarea id="modal-day-text" class="form-control" style="min-height: 120px;" placeholder="اكتب خطتك أو هدفك هنا..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+                    <button id="modal-save-btn" class="btn btn-primary" style="padding: 0.7rem 1.8rem;">حفظ الهدف ✓</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->

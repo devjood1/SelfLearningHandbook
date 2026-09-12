@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
 
+// Month Data Cache for 2026 days goals
+const monthNotesCache = {};
+
 function initApp() {
     const landingPage = document.getElementById('landing-page');
     const btnStart = document.getElementById('btn-start');
@@ -160,7 +163,7 @@ function downloadPlannerAsImage(elementId, fileName) {
     let originalText = '';
     if (originalBtn) {
         originalText = originalBtn.innerHTML;
-        originalBtn.innerHTML = '⌛ جاري التجهيز...';
+        originalBtn.innerHTML = '⌛ جاري تجهيز الصورة...';
         originalBtn.disabled = true;
     }
 
@@ -202,7 +205,7 @@ function downloadPlannerAsImage(elementId, fileName) {
 
     html2canvas(element, {
         backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
-        scale: 2, // High DPI
+        scale: 2.5, // High Resolution DPI
         useCORS: true,
         windowWidth: element.scrollWidth
     }).then(canvas => {
@@ -236,7 +239,7 @@ function downloadPlannerAsImage(elementId, fileName) {
 }
 
 // ----------------------------------------------------
-// 1. MONTHLY PLANNER (2026 Months Selection)
+// 1. MONTHLY PLANNER (Compact Mobile Tap-to-Edit & Big PNG Export)
 // ----------------------------------------------------
 function renderMonthlyPlanner(container) {
     const months2026 = [
@@ -260,20 +263,21 @@ function renderMonthlyPlanner(container) {
         <div class="page-header">
             <div>
                 <h1 class="page-title">📅 جدول الشهر (Monthly Planner)</h1>
-                <p class="page-description">اختر الشهر المناسب من عام 2026 وخطط لأهدافك ورؤيتك الشاملة ثم نزلها كصورة</p>
+                <p class="page-description">اضغط على أي يوم على جوالك لكتابة هدفه وملاحظاته، وعند تنزيله كصورة PNG يتم تصديره بحجم كبير ومفصل!</p>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 480px;">
                 <select id="month-select-2026" class="google-select" style="flex: 1; min-width: 170px; font-weight: 700; border-color: var(--primary-color);">
                     ${months2026.map(m => `<option value="${m.id}" ${m.id === selectedMonthIdx ? 'selected' : ''}>${m.name}</option>`).join('')}
                 </select>
-                <button onclick="downloadPlannerAsImage('export-monthly-planner', 'جدول_الشهر_المتعلم_الذاتي')" class="btn btn-primary" style="flex: 1; min-width: 190px;">
-                    📥 تنزيل الجدول كصورة (PNG)
+                <button id="btn-export-month" class="btn btn-primary" style="flex: 1; min-width: 190px;">
+                    📥 تنزيل الجدول كصورة كبيرة (PNG)
                 </button>
             </div>
         </div>
 
-        <div id="export-monthly-planner" class="planner-export-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.9rem; flex-wrap: wrap; gap: 10px;">
+        <!-- Visible Compact Screen Grid (Fits beautifully on Phones) -->
+        <div class="planner-export-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.8rem; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div class="google-mini-dots">
                         <span class="dot dot-blue"></span>
@@ -281,52 +285,148 @@ function renderMonthlyPlanner(container) {
                         <span class="dot dot-yellow"></span>
                         <span class="dot dot-green"></span>
                     </div>
-                    <h2 id="current-month-display" style="font-size: 1.4rem; color: var(--text-primary); font-weight: 800;">خطة شهر ${months2026[selectedMonthIdx].name}</h2>
+                    <h2 id="current-month-display" style="font-size: 1.3rem; color: var(--text-primary); font-weight: 800;">خطة شهر ${months2026[selectedMonthIdx].name}</h2>
                 </div>
-                <div style="color: var(--text-tertiary); font-size: 0.88rem; font-weight: 600;">كتيب المتعلم الذاتي &bull; GDG Mustaqbal</div>
+                <div style="color: var(--text-tertiary); font-size: 0.85rem; font-weight: 600;">(اضغط على أي يوم للإدخال 👆)</div>
             </div>
 
-            <div class="month-grid-wrapper">
-                <div class="month-days-header">
-                    <div>الأحد</div><div>الإثنين</div><div>الثلاثاء</div><div>الأربعاء</div><div>الخميس</div><div>الجمعة</div><div>السبت</div>
-                </div>
-
-                <div id="month-days-grid" class="grid-7"></div>
+            <div class="month-compact-headers">
+                <div>أحد</div><div>إثنين</div><div>ثلاثاء</div><div>أربعاء</div><div>خميس</div><div>جمعة</div><div>سبت</div>
             </div>
+
+            <div id="month-days-grid" class="month-calendar-compact"></div>
+        </div>
+
+        <!-- Offscreen Dedicated High-Resolution Enlarged Canvas Container For Big PNG Export -->
+        <div id="export-big-month-container" style="position: absolute; left: -9999px; top: 0; width: 1200px; background: var(--bg-surface); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border-subtle);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.8rem; border-bottom: 2px solid var(--border-subtle); padding-bottom: 1.2rem;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div class="google-mini-dots">
+                        <span class="dot dot-blue" style="width:14px; height:14px;"></span>
+                        <span class="dot dot-red" style="width:14px; height:14px;"></span>
+                        <span class="dot dot-yellow" style="width:14px; height:14px;"></span>
+                        <span class="dot dot-green" style="width:14px; height:14px;"></span>
+                    </div>
+                    <h2 id="export-month-display" style="font-size: 2rem; color: var(--text-primary); font-weight: 900;">خطة شهر ${months2026[selectedMonthIdx].name}</h2>
+                </div>
+                <div style="color: var(--text-tertiary); font-size: 1.1rem; font-weight: 700;">كتيب المتعلم الذاتي &bull; GDG Mustaqbal University</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 14px; text-align: center; font-weight: 800; font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 14px;">
+                <div>الأحد</div><div>الإثنين</div><div>الثلاثاء</div><div>الأربعاء</div><div>الخميس</div><div>الجمعة</div><div>السبت</div>
+            </div>
+
+            <div id="export-month-days-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 14px;"></div>
         </div>
     `;
 
-    function buildMonthGrid(monthIdx) {
+    function buildMonthGrids(monthIdx) {
         const month = months2026[monthIdx];
         const gridContainer = document.getElementById('month-days-grid');
+        const exportGridContainer = document.getElementById('export-month-days-grid');
         const monthTitle = document.getElementById('current-month-display');
+        const exportMonthTitle = document.getElementById('export-month-display');
         
         if (monthTitle) monthTitle.textContent = `خطة شهر ${month.name}`;
+        if (exportMonthTitle) exportMonthTitle.textContent = `خطة شهر ${month.name}`;
         
-        let html = '';
+        let compactHtml = '';
+        let exportHtml = '';
 
+        // Empty padding cells
         for (let p = 0; p < month.startDay; p++) {
-            html += `<div class="glass-card day-box empty-day" style="opacity: 0.25; padding: 0.8rem; margin: 0; min-height: 100px; background: var(--bg-subtle);"></div>`;
+            compactHtml += `<div class="day-cell empty-cell"></div>`;
+            exportHtml += `<div style="background: var(--bg-subtle); min-height: 140px; border-radius: 14px; opacity: 0.2; border: 1px dashed var(--border-subtle);"></div>`;
         }
 
+        // Days of month
         for (let i = 1; i <= month.days; i++) {
-            html += `
-                <div class="glass-card day-box" style="padding: 0.75rem; margin: 0; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between;">
-                    <div style="font-weight: 800; font-size: 0.9rem; color: var(--primary-color); border-bottom: 1px solid var(--border-subtle); padding-bottom: 4px;">يوم ${i}</div>
-                    <textarea class="form-control" placeholder="هدف / ملاحظة..." style="background: transparent; border: none; font-size: 0.85rem; padding: 4px; min-height: 60px; color: var(--text-primary); font-weight: 600; overflow:hidden;"></textarea>
+            const cacheKey = `${monthIdx}_day_${i}`;
+            const noteVal = monthNotesCache[cacheKey] || '';
+            const hasNoteClass = noteVal ? 'has-note' : '';
+
+            // Compact Cell
+            compactHtml += `
+                <div class="day-cell ${hasNoteClass}" data-day="${i}" data-month="${monthIdx}">
+                    <span class="day-cell-num">${i}</span>
+                    <span class="day-cell-note-preview">${noteVal ? noteVal : ''}</span>
+                </div>
+            `;
+
+            // Big Export Cell
+            exportHtml += `
+                <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 14px; padding: 12px; min-height: 140px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+                    <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary-color); border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px;">يوم ${i}</div>
+                    <div style="font-size: 0.95rem; color: var(--text-primary); margin-top: 8px; font-weight: 600; white-space: pre-wrap; word-break: break-word; flex: 1;">${noteVal}</div>
                 </div>
             `;
         }
 
-        gridContainer.innerHTML = html;
+        gridContainer.innerHTML = compactHtml;
+        exportGridContainer.innerHTML = exportHtml;
+
+        // Attach click listener on day cells to open Tap-to-Edit modal
+        gridContainer.querySelectorAll('.day-cell:not(.empty-cell)').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const dayNum = cell.getAttribute('data-day');
+                const mIdx = cell.getAttribute('data-month');
+                openDayModal(dayNum, mIdx);
+            });
+        });
     }
 
-    buildMonthGrid(selectedMonthIdx);
+    buildMonthGrids(selectedMonthIdx);
 
     const selectEl = document.getElementById('month-select-2026');
     if (selectEl) {
         selectEl.addEventListener('change', (e) => {
-            buildMonthGrid(parseInt(e.target.value));
+            selectedMonthIdx = parseInt(e.target.value);
+            buildMonthGrids(selectedMonthIdx);
+        });
+    }
+
+    // Export Big PNG Button
+    const btnExport = document.getElementById('btn-export-month');
+    if (btnExport) {
+        btnExport.addEventListener('click', () => {
+            downloadPlannerAsImage('export-big-month-container', `خطة_شهر_${months2026[selectedMonthIdx].name.replace(' ', '_')}`);
+        });
+    }
+
+    // Setup Day Edit Modal
+    setupDayModal(() => buildMonthGrids(selectedMonthIdx));
+}
+
+// Day Edit Modal Logic
+function openDayModal(dayNum, monthIdx) {
+    const modal = document.getElementById('day-modal-overlay');
+    const modalTitle = document.getElementById('modal-day-title');
+    const modalText = document.getElementById('modal-day-text');
+    const saveBtn = document.getElementById('modal-save-btn');
+
+    if (!modal) return;
+
+    modalTitle.textContent = `🎯 تعديل هدف وملاحظة يوم ${dayNum}`;
+    const cacheKey = `${monthIdx}_day_${dayNum}`;
+    modalText.value = monthNotesCache[cacheKey] || '';
+    modal.classList.add('active');
+
+    saveBtn.onclick = () => {
+        monthNotesCache[cacheKey] = modalText.value.trim();
+        modal.classList.remove('active');
+        if (window.onDaySavedCallback) window.onDaySavedCallback();
+    };
+}
+
+function setupDayModal(refreshCallback) {
+    window.onDaySavedCallback = refreshCallback;
+    const modal = document.getElementById('day-modal-overlay');
+    const closeBtn = document.getElementById('modal-close-btn');
+
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('active');
         });
     }
 }
@@ -436,17 +536,21 @@ function renderDailyPlanner(container) {
 }
 
 // ----------------------------------------------------
-// EXERCISE 1: TIME AUDIT (3 DAYS)
+// EXERCISE 1: TIME AUDIT (3 DAYS) & OBSERVATION QUESTIONS PNG EXPORT
 // ----------------------------------------------------
 function renderExercise1(container) {
     container.innerHTML = `
         <div class="page-header">
             <div>
-                <h1 class="page-title">📊 تمرين ١: تدقيق الوقت (Time Audit)</h1>
-                <p class="page-description">سجّل أنشطتك وقارن تركيزك على مدى ٣ أيام متتالية للتعرف على عاداتك</p>
+                <h1 class="page-title">📊 تمرين ١: تدقيق الوقت وملاحظات الـ ٣ أيام</h1>
+                <p class="page-description">سجّل أنشطتك وقارن تركيزك، ثم احفظ أسئلة الملاحظة والتأمل كصورة PNG أنيقة!</p>
             </div>
+            <button onclick="downloadPlannerAsImage('export-observation-container', 'اسئلة_ملاحظة_تدقيق_الوقت')" class="btn btn-primary">
+                📥 تنزيل أسئلة الملاحظة كصورة (PNG)
+            </button>
         </div>
 
+        <!-- 3 Days Activity Logging Card -->
         <div class="glass-card">
             <h3 style="margin-bottom: 1.2rem; color: var(--google-yellow); display: flex; align-items: center; gap: 8px;">
                 <span>📝 الخطوة الأولى: تسجيل الأنشطة لمدة ٣ أيام</span>
@@ -467,26 +571,41 @@ function renderExercise1(container) {
             </div>
         </div>
 
-        <div class="glass-card">
-            <h3 style="margin-bottom: 1.2rem; color: var(--primary-color);">🤔 الخطوة الثانية: أسئلة التأمل الذاتي (بعد 3 أيام)</h3>
-            <form onsubmit="event.preventDefault(); alert('تم حفظ إجابات التقييم الذاتي بنجاح! 🌟');">
+        <!-- Observation Questions Section (Capturable as PNG) -->
+        <div id="export-observation-container" class="planner-export-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="google-mini-dots">
+                        <span class="dot dot-blue"></span>
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                    </div>
+                    <h2 style="font-size: 1.4rem; color: var(--text-primary); font-weight: 800;">أسئلة التأمل وملاحظة الـ ٣ أيام</h2>
+                </div>
+                <div style="color: var(--text-tertiary); font-size: 0.88rem; font-weight: 600;">كتيب المتعلم الذاتي &bull; GDG Mustaqbal</div>
+            </div>
+
+            <form onsubmit="event.preventDefault(); downloadPlannerAsImage('export-observation-container', 'اسئلة_ملاحظة_تدقيق_الوقت');">
                 <div class="form-group">
-                    <label class="form-label">١- كم ساعة مضت في الأنشطة والتعلم؟</label>
-                    <input type="text" class="form-control" placeholder="مثال: مضت ٩ ساعات تعلم حقيقي ومشتتات ٥ ساعات...">
+                    <label class="form-label" style="font-size: 1rem; color: var(--primary-color);">١- كم ساعة مضت في الأنشطة والتعلم؟</label>
+                    <textarea class="form-control" style="min-height: 80px;" placeholder="مثال: مضت ٩ ساعات تعلم حقيقي ومشتتات ٥ ساعات..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">٢- متى أكون أكثر تركيزاً؟</label>
-                    <input type="text" class="form-control" placeholder="مثال: في الصباح الباكر من ٦ إلى ٩ صباحاً...">
+                    <label class="form-label" style="font-size: 1rem; color: var(--primary-color);">٢- متى أكون أكثر تركيزاً؟</label>
+                    <textarea class="form-control" style="min-height: 80px;" placeholder="مثال: في الصباح الباكر من ٦ إلى ٩ صباحاً..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">٣- ما أكثر شيء يقطع وقت التعلم؟</label>
-                    <input type="text" class="form-control" placeholder="مثال: إشعارات الجوال، التصفح العشوائي، المقاطعات العائلية...">
+                    <label class="form-label" style="font-size: 1rem; color: var(--primary-color);">٣- ما أكثر شيء يقطع وقت التعلم؟</label>
+                    <textarea class="form-control" style="min-height: 80px;" placeholder="مثال: إشعارات الجوال، التصفح العشوائي، المقاطعات العائلية..."></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">٤- ما الوقت الواقعي الذي أستطيع تخصيصه للتعلم يومياً؟</label>
-                    <input type="text" class="form-control" placeholder="مثال: ساعتان متواصلتان بدون ملهيات...">
+                    <label class="form-label" style="font-size: 1rem; color: var(--primary-color);">٤- ما الوقت الواقعي الذي أستطيع تخصيصه للتعلم يومياً؟</label>
+                    <textarea class="form-control" style="min-height: 80px;" placeholder="مثال: ساعتان متواصلتان بدون ملهيات..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">حفظ نتائج التأمل 💾</button>
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
+                    📥 حفظ وتنزيل الإجابات كصورة PNG ✨
+                </button>
             </form>
         </div>
     `;
@@ -502,6 +621,9 @@ function renderExercise2(container) {
                 <h1 class="page-title">🎯 تمرين ٢: ترتيب الأولويات (Eisenhower Matrix)</h1>
                 <p class="page-description">حدد هدفك النهائي ورتب خطواتك ووزع مهامك بحسب الأهمية والاستعجال</p>
             </div>
+            <button onclick="downloadPlannerAsImage('export-priority-matrix', 'مصفوفة_ترتيب_الأولويات')" class="btn btn-primary">
+                📥 تنزيل مصفوفة الأولويات كصورة (PNG)
+            </button>
         </div>
 
         <div class="glass-card">
@@ -516,7 +638,7 @@ function renderExercise2(container) {
             </div>
         </div>
 
-        <div class="glass-card">
+        <div id="export-priority-matrix" class="planner-export-container">
             <h3 style="margin-bottom: 1.2rem; color: var(--primary-color);">📥 تصنيف المهام إلى مصفوفة الأولويات</h3>
             
             <div class="grid-matrix">
@@ -623,8 +745,7 @@ function renderExercise4(container) {
                 <textarea class="form-control" placeholder="وصف حيادي لما تم تنفيذه ولماذا توقفت الخطة..."></textarea>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" style="font-size: 0.95rem; color: var(--text-primary);">٢- ما سبب المشكلة؟</label>
+            <div class="form-group" style="margin-label: 0.95rem; color: var(--text-primary);">٢- ما سبب المشكلة؟</label>
                 <textarea class="form-control" placeholder="هل التقدير الزمني غير واقعي؟ هل ظهرت ملهيات طارئة؟ أم كان الهدف أكبر من اللازم؟"></textarea>
             </div>
 
