@@ -155,11 +155,11 @@ function renderView(viewName) {
 }
 
 // Helper to download planner HTML element as PNG image using html2canvas
-function downloadPlannerAsImage(elementId, fileName) {
+async function downloadPlannerAsImage(elementId, fileName, btn) {
     const element = document.getElementById(elementId);
     if (!element) return;
 
-    const originalBtn = event ? event.currentTarget : null;
+    const originalBtn = btn || null;
     let originalText = '';
     if (originalBtn) {
         originalText = originalBtn.innerHTML;
@@ -167,80 +167,82 @@ function downloadPlannerAsImage(elementId, fileName) {
         originalBtn.disabled = true;
     }
 
-    // Replace inputs/textareas with styled divs temporarily for exact multiline rendering in html2canvas
+    // Swap inputs for divs so typed text shows up in the export
     const tempReplacements = [];
-    const inputsAndTextareas = element.querySelectorAll('input, textarea, select');
-
-    inputsAndTextareas.forEach(input => {
+    element.querySelectorAll('input, textarea, select').forEach(input => {
+        const cs = getComputedStyle(input);
         const div = document.createElement('div');
         div.className = input.className;
+
         let val = input.value || input.placeholder || '';
-
         if (input.tagName.toLowerCase() === 'select') {
-            val = input.options[input.selectedIndex].text;
+            val = input.options[input.selectedIndex]?.text || '';
         }
 
-        // Preserve line breaks
-        div.style.whiteSpace = 'pre-wrap';
-        div.style.wordBreak = 'break-word';
-        div.style.minHeight = input.offsetHeight + 'px';
-        div.style.height = 'auto';
-        div.style.background = getComputedStyle(input).background;
-        div.style.border = getComputedStyle(input).border;
-        div.style.borderRadius = getComputedStyle(input).borderRadius;
-        div.style.padding = getComputedStyle(input).padding;
-        div.style.fontSize = getComputedStyle(input).fontSize;
-        const userChosenColor = getComputedStyle(document.body).getPropertyValue('--user-chosen-text-color');
-        if (userChosenColor && userChosenColor.trim()) {
-            div.style.color = userChosenColor.trim();
-        } else {
-            div.style.color = input.value ? getComputedStyle(input).color : getComputedStyle(document.documentElement).getPropertyValue('--text-tertiary');
-        }
-        div.style.fontFamily = getComputedStyle(input).fontFamily;
-        div.style.fontWeight = getComputedStyle(input).fontWeight;
+        // Everything that affects Arabic layout, copied explicitly
+        div.style.direction      = cs.direction;
+        div.style.textAlign      = cs.textAlign;
+        div.style.lineHeight     = cs.lineHeight;
+        div.style.letterSpacing  = 'normal';
+        div.style.fontFamily     = cs.fontFamily;
+        div.style.fontSize       = cs.fontSize;
+        div.style.fontWeight     = cs.fontWeight;
+        div.style.padding        = cs.padding;
+        div.style.border         = cs.border;
+        div.style.borderRadius   = cs.borderRadius;
+        div.style.background     = cs.backgroundColor;
+        div.style.width          = input.offsetWidth + 'px';
+        div.style.minHeight      = input.offsetHeight + 'px';
+        div.style.boxSizing      = 'border-box';
+        div.style.whiteSpace     = 'pre-wrap';
+        div.style.wordBreak      = 'break-word';
 
-        div.textContent = val;
+        const userColor = getComputedStyle(document.body)
+            .getPropertyValue('--user-chosen-text-color').trim();
+        div.style.color = userColor
+            ? userColor
+            : (input.value
+                ? cs.color
+                : getComputedStyle(document.documentElement)
+                    .getPropertyValue('--text-tertiary').trim());
+
+        div.textContent = val;  // one text node = one shaping run
 
         input.style.display = 'none';
         input.parentNode.insertBefore(div, input.nextSibling);
         tempReplacements.push({ input, div });
     });
 
-    const isDarkMode = document.body.classList.contains('dark-gray-mode');
-
-    html2canvas(element, {
-        backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
-        scale: 2.5, // High Resolution DPI
-        useCORS: true,
-        windowWidth: element.scrollWidth
-    }).then(canvas => {
-        // Restore original inputs/textareas
+    const restore = () => {
         tempReplacements.forEach(({ input, div }) => {
             input.style.display = '';
             div.remove();
         });
+    };
 
-        const link = document.createElement('a');
-        link.download = `${fileName}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+    try {
+        // Capture before the font loads and you get fallback metrics
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
 
-        if (originalBtn) {
-            originalBtn.innerHTML = originalText;
-            originalBtn.disabled = false;
-        }
-    }).catch(err => {
+        const isDark = document.body.classList.contains('dark-gray-mode');
+
+        await snapdom.download(element, {
+            format: 'png',
+            filename: fileName,
+            scale: 3,
+            embedFonts: true,
+            backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF'
+        });
+    } catch (err) {
         console.error('Error downloading image:', err);
-        tempReplacements.forEach(({ input, div }) => {
-            input.style.display = '';
-            div.remove();
-        });
         alert('حدث خطأ أثناء تنزيل الصورة، يرجى المحاولة مرة أخرى.');
+    } finally {
+        restore();
         if (originalBtn) {
             originalBtn.innerHTML = originalText;
             originalBtn.disabled = false;
         }
-    });
+    }
 }
 
 // ----------------------------------------------------
@@ -394,7 +396,7 @@ function renderMonthlyPlanner(container) {
     const btnExport = document.getElementById('btn-export-month');
     if (btnExport) {
         btnExport.addEventListener('click', () => {
-            downloadPlannerAsImage('export-big-month-container', `خطة_شهر_${months2026[selectedMonthIdx].name.replace(' ', '_')}`);
+            downloadPlannerAsImage('export-big-month-container', `خطة_شهر_${months2026[selectedMonthIdx].name.replace(' ', '_')}`, btnExport);
         });
     }
 
@@ -467,7 +469,7 @@ function renderWeeklyPlanner(container) {
                 <h1 class="page-title">📆 جدول الأسبوع (Weekly Planner)</h1>
                 <p class="page-description">قسّم إنجازاتك بتركيز على مدار الأيام السبعة مع إمكانية التمدد التلقائي والتنزيل كصورة</p>
             </div>
-            <button onclick="downloadPlannerAsImage('export-weekly-planner', 'جدول_الأسبوع_المتعلم_الذاتي')" class="btn btn-primary">
+            <button onclick="downloadPlannerAsImage('export-weekly-planner', 'جدول_الأسبوع_المتعلم_الذاتي', this)" class="btn btn-primary">>
                 📥 تنزيل الجدول كصورة (PNG)
             </button>
         </div>

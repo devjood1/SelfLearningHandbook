@@ -938,3 +938,14 @@ textarea.form-control {
         font-size: 0.68rem;
     }
 }
+
+
+.planner-export-container,
+.planner-export-container *,
+[id^="export-"],
+[id^="export-"] * {
+    letter-spacing: normal !important;
+    word-spacing: normal !important;
+    font-feature-settings: "liga" 1, "calt" 1, "rlig" 1;
+    text-rendering: optimizeLegibility;
+}
