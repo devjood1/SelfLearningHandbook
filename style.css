@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
 
 :root {
     --bg-main: #0B0F19;
@@ -34,7 +34,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+    font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
 
