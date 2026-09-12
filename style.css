@@ -67,9 +67,41 @@ body.dark-gray-mode {
     --pill-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* User Defined Dynamic Text Color Override */
-body.custom-text-color {
-    --text-primary: var(--user-chosen-text-color) !important;
+/* User Defined Dynamic Text Color Override (Applies to ALL elements in Light & Dark mode) */
+body.custom-text-color,
+body.custom-text-color *,
+body.custom-text-color .page-title,
+body.custom-text-color .page-description,
+body.custom-text-color .brand-name,
+body.custom-text-color .brand-title,
+body.custom-text-color .brand-caption,
+body.custom-text-color .nav-category-badge,
+body.custom-text-color .form-label,
+body.custom-text-color .form-control,
+body.custom-text-color textarea,
+body.custom-text-color input,
+body.custom-text-color .day-cell-num,
+body.custom-text-color .day-cell-note-preview,
+body.custom-text-color .landing-title,
+body.custom-text-color .landing-sub-title-word,
+body.custom-text-color .landing-subtitle,
+body.custom-text-color .month-compact-headers div,
+body.custom-text-color .day-modal-header h3,
+body.custom-text-color h1,
+body.custom-text-color h2,
+body.custom-text-color h3,
+body.custom-text-color h4,
+body.custom-text-color p,
+body.custom-text-color label,
+body.custom-text-color span:not(.dot) {
+    color: var(--user-chosen-text-color) !important;
+}
+
+body.custom-text-color .form-control::placeholder,
+body.custom-text-color textarea::placeholder,
+body.custom-text-color input::placeholder {
+    color: var(--user-chosen-text-color) !important;
+    opacity: 0.65;
 }
 
 /* ========================================================

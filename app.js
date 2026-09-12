@@ -190,7 +190,12 @@ function downloadPlannerAsImage(elementId, fileName) {
         div.style.borderRadius = getComputedStyle(input).borderRadius;
         div.style.padding = getComputedStyle(input).padding;
         div.style.fontSize = getComputedStyle(input).fontSize;
-        div.style.color = input.value ? getComputedStyle(input).color : getComputedStyle(document.documentElement).getPropertyValue('--text-tertiary');
+        const userChosenColor = getComputedStyle(document.body).getPropertyValue('--user-chosen-text-color');
+        if (userChosenColor && userChosenColor.trim()) {
+            div.style.color = userChosenColor.trim();
+        } else {
+            div.style.color = input.value ? getComputedStyle(input).color : getComputedStyle(document.documentElement).getPropertyValue('--text-tertiary');
+        }
         div.style.fontFamily = getComputedStyle(input).fontFamily;
         div.style.fontWeight = getComputedStyle(input).fontWeight;
 
